@@ -26,8 +26,8 @@ int convertToTIFF(const char *input, int quality) {
         MagickSetImageAlphaChannel(wand, RemoveAlphaChannel);
     }
 
-    // Set format to TIFF~
-    if (MagickSetImageFormat(wand, "TIFF") == MagickFalse) {~
+    // Set format to TIFF
+    if (MagickSetImageFormat(wand, "TIFF") == MagickFalse) {
         fprintf(stderr, "Error: Failed to set output format to TIFF\n");
         wand = DestroyMagickWand(wand);
         MagickWandTerminus();
