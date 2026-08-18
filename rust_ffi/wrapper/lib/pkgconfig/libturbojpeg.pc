@@ -1,0 +1,10 @@
+prefix=/home/conner/imstatic
+exec_prefix=/home/conner/imstatic
+libdir=/home/conner/imstatic/lib
+includedir=/home/conner/imstatic/include
+
+Name: libturbojpeg
+Description: A SIMD-accelerated JPEG codec that provides the TurboJPEG API
+Version: 3.1.2
+Libs: -L${libdir} -lturbojpeg
+Cflags: -I${includedir}
