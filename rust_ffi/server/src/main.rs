@@ -11,7 +11,7 @@ use tempfile::NamedTempFile;
 
 // Safe wrapper import of Rust functions
 // (previous version called unsafe C functions)
-use image_conversion_wrapper::{ convert_to_jpg, convert_to_png, 
+use wrapper::{ convert_to_jpg, convert_to_png, 
     convert_to_tiff, convert_to_webp, 
     make_gif };
 
@@ -178,7 +178,7 @@ async fn make_gif_route(content_type: &ContentType, data: Data<'_>) -> Result<Bi
     let out_gif_str = out_path.to_str().unwrap();
 
     // Create OwnedGIFInput
-    let owned_gif_input = image_conversion_wrapper::make_gif_input(&frame_str_paths, out_gif_str, delay_cs, loop_cnt, target_w, target_h);
+    let owned_gif_input = wrapper::make_gif_input(&frame_str_paths, out_gif_str, delay_cs, loop_cnt, target_w, target_h);
 
     //make_gif function only accepts one struct par
     if make_gif(owned_gif_input) != 0 {
