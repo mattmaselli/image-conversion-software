@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Rust Image Converter</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="page">
+    <header class="header">
+      <h1>Rust Image Converter</h1>
+      <p>Upload an image, choose a format and quality, then convert it with Rust backend.</p>
+    </header>
+
+    <main class="card">
+      <form id="convertForm">
+        <label class="upload-area">
+          <!-- allow multiple so GIF can use several frames -->
+          <input type="file" id="fileInput" accept="image/*" hidden multiple />
+          <div class="upload-inner">
+            <span class="upload-icon">📁</span>
+            <p class="upload-text">Click to choose an image</p>
+            <p class="upload-hint">Supported: JPG, PNG, TIFF, WEBP, GIF</p>
+          </div>
+        </label>
+
+        <div id="fileInfo" class="file-info hidden">
+          <div class="file-meta">
+            <p id="fileName"></p>
+            <p id="fileSize"></p>
+          </div>
+          <img id="previewImage" class="preview-image" alt="Preview" />
+        </div>
+
+        <div class="options">
+          <label for="format">Convert to:</label>
+          <select id="format">
+            <option value="jpg">JPG (.jpg)</option>
+            <option value="png">PNG (.png)</option>
+            <option value="tiff">TIFF (.tiff)</option>
+            <option value="webp">WEBP (.webp)</option>
+            <option value="gif">GIF (.gif)</option>
+          </select>
+        </div>
+
+        <div class="options" id="qualityRow">
+          <label for="quality">Quality (0–100):</label>
+          <select id="quality"></select>
+        </div>
+
+
+        <!-- GIF frame time row (hidden until GIF selected) -->
+        <div class="options hidden" id="gifTimeRow">
+          <label for="gifTime">GIF frame time (ms):</label>
+          <input
+            type="number"
+            id="gifTime"
+            min="10"
+            max="5000"
+            step="10"
+            value="1000"
+          />
+        </div>
+
+        <!-- GIF loop count row (hidden until GIF selected) -->
+        <div class="options hidden" id="gifLoopRow">
+          <label for="gifLoop">
+            GIF loop count (0 or empty = forever):
+          </label>
+          <input
+            type="number"
+            id="gifLoop"
+            min="0"
+            max="10"
+            step="1"
+            placeholder="0"
+          />
+        </div>
+
+        <div class="actions">
+          <button type="submit" id="convertButton">Convert</button>
+          <button type="button" id="previewButton" class="secondary-button" disabled>Preview</button>
+          <button type="button" id="downloadButton" class="secondary-button" disabled>Download</button>
+        </div>
+
+        <div id="output" class="status-text"></div>
+      </form>
+    </main>
+
+    <footer class="footer">
+      <p>Built with Rust FFI backend and ImageMagick</p>
+      <p>© ImageMagick Studio LLC</p>
+    </footer>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,11 @@
+[package]
+name = "server"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+rocket = { version = "0.5.1", features = ["json"] }
+tempfile = "3"
+rocket-multipart-form-data = "0.10.7"
+
+image_conversion_wrapper = { path = "../image_conversion_wrapper" }

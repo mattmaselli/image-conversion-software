@@ -1,0 +1,9 @@
+[default]
+address = "0.0.0.0"
+port = 8080
+
+[default.limits]
+data-form = "64 MiB"
+file = "64 MiB"
+form = "64 MiB"
+bytes = "64 MiB"
