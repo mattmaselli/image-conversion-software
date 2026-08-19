@@ -2,6 +2,8 @@
 
 int main() {
 
+    MagickWandGenesis();
+
     convertToJPG("input.png", 100);
     convertToPNG("input.png", 100);
     convertToTIFF("input.png", 100);
@@ -10,6 +12,8 @@ int main() {
     GIFInput input = makeGIFInput ((const char*[]){"input.png"}, 1, "output.gif", 100, -1, 500, 500);
 
     makeGIF(input);
+
+    MagickWandTerminus ();
 
     return 0;
 }
