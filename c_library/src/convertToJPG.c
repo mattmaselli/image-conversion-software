@@ -1,50 +1,83 @@
+/*
+convertToJPGG.c
+
+*/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <MagickWand/MagickWand.h>
 
-int convertToJPG(const char *input, int quality) {
+// (Note: * denotes ptr variable)
+int convertToJPG(const char *input, const char *output, int quality) {
   
-    const char *output = "output.jpg";  // Output filename
+    // Validate arguments before allocating anything
+    if (input == NULL || output == NULL) {
+        fprintf(stderr, "Error: Input and output paths cannot be NULL\n");
+        return 1;
+    }
 
-    MagickWandGenesis();
+    if (quality < 1 || quality > 100) {
+        fprintf(stderr, "Error: Quality must be between 1 and 100\n");
+        return 1;
+    }
+
+    // Allocate resources
+    int result = 1;
+    // Create wand object for MagickWand use
     MagickWand *wand = NewMagickWand();
 
-    // Read input image
+    // Error Handling section
+    // If wand fails to be created, print output and return 1
+    if (wand == NULL) {
+        fprintf(stderr, "Error: Could not create MagickWand\n");
+        return 1;
+    }
+
+    // Read Image
     if (MagickReadImage(wand, input) == MagickFalse) {
-        fprintf(stderr, "Error: Failed to read image '%s'\n", input);
-        wand = DestroyMagickWand(wand);
-        MagickWandTerminus();
-        return 1;
+        fprintf(stderr, "Error: Failed to read '%s'\n", input);
+        goto cleanup;
     }
 
-    // Remove alpha channel if present (JPEG does not support transparency)
-    if (MagickGetImageAlphaChannel(wand) == MagickTrue) {
-        MagickSetImageAlphaChannel(wand, RemoveAlphaChannel);
-    }
-
-    // Set format to JPEG
+    // Set format 
+    // Note: MagickWand oficially prefers JPEG as far as terminology goes(source: https://imagemagick.org/formats/#gsc.tab=0)
+    // However, .jpg is still accepted. 
     if (MagickSetImageFormat(wand, "JPEG") == MagickFalse) {
-        fprintf(stderr, "Error: Failed to set output format to JPEG\n");
-        wand = DestroyMagickWand(wand);
-        MagickWandTerminus();
-        return 1;
+        fprintf(stderr, "Error: Failed to set JPEG format\n");
+        goto cleanup;
     }
 
-    // Set JPEG quality
-    MagickSetImageCompressionQuality(wand, quality);
+     // Set JPEG quality
+    if (MagickSetImageCompressionQuality(wand, quality) == MagickFalse) {
+        fprintf(stderr, "Error: Failed to set image quality\n");
+        goto cleanup;
+    }
 
-    // Write output JPEG
+    // remove alpha channel to remove transparency from image 
+    /*if (MagickGetImageAlphaChannel(wand) == MagickTrue) {
+        if (MagickSetImageAlphaChannel(wand, RemoveAlphaChannel) == MagickFalse) {
+        fprintf(stderr, "Error: Failed to remove alpha channel\n");
+        goto cleanup;
+        }   
+
+    }*/
+
+    // Write output JPG
     if (MagickWriteImage(wand, output) == MagickFalse) {
         fprintf(stderr, "Error: Failed to write image '%s'\n", output);
-        wand = DestroyMagickWand(wand);
-        MagickWandTerminus();
-        return 1;
+        goto cleanup;
     }
+
+
 
     printf("Successfully converted '%s' → '%s' with quality %d\n", input, output, quality);
 
-    wand = DestroyMagickWand(wand);
-    MagickWandTerminus();
+    // Mark conversion successful
+    result = 0;
 
-    return 0;
+    cleanup:
+        // Release resources
+        wand = DestroyMagickWand(wand);
+        return result;
+
 }
