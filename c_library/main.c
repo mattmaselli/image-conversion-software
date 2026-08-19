@@ -6,7 +6,7 @@ int main() {
     // Setting up internal resources, thread safety, and data structures
     MagickWandGenesis(); 
 
-    convertToJPG("input.png", 100);
+    convertToJPG("input.png", "output.jpg", 100);
     convertToPNG("input.png", 100);
     convertToTIFF("input.png", 100);
     convertToWEBP("input.png", 100);
