@@ -2,7 +2,9 @@
 
 int main() {
 
-    MagickWandGenesis();
+    // Initialize MagickWand C API environment
+    // Setting up internal resources, thread safety, and data structures
+    MagickWandGenesis(); 
 
     convertToJPG("input.png", 100);
     convertToPNG("input.png", 100);
@@ -13,6 +15,7 @@ int main() {
 
     makeGIF(input);
 
+    // Clean up and releases resources 
     MagickWandTerminus ();
 
     return 0;
