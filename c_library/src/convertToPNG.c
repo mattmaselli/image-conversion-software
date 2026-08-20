@@ -62,6 +62,4 @@ int convertToPNG(const char *input, const char *output, int quality) {
     cleanup:
         wand = DestroyMagickWand(wand);
         return result;
-
-    
 }
