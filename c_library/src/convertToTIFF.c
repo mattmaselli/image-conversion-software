@@ -1,12 +1,25 @@
+/*
+convertToTIFF.c
+*/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <MagickWand/MagickWand.h>
 
 int convertToTIFF(const char *input, int quality) {
     
-    const char *output = "output.tiff"; // change to your output filename
+
+     const char *output = "output.webp";
 
     MagickWandGenesis();
+    // Validate arguments before allocating anything
+    if (input == NULL || output == NULL) {
+        fprintf(stderr, "Error: Input and output paths cannot be NULL\n");
+        return 1;
+    }
+    
+
+    // Allocate resources
     MagickWand *wand = NewMagickWand();
 
     // Read input image

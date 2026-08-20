@@ -7,8 +7,8 @@
 extern "C" {
 #endif
 
-int convertToJPG(const char *input, int quality);
-int convertToPNG(const char *input, int quality);
+int convertToJPG(const char *input, const char *output, int quality);
+int convertToPNG(const char *input, const char *output, int quality);
 int convertToTIFF(const char *input, int quality);
 int convertToWEBP(const char *input, int quality);
 
