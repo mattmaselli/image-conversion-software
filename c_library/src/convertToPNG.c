@@ -1,49 +1,67 @@
+/*
+convertToPNG.c
+*/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <MagickWand/MagickWand.h>
 
-int convertToPNG(const char *input, int quality) {
+int convertToPNG(const char *input, const char *output, int quality) {
     
-    const char *output = "output.png";
+    // Validate arguments before allocating anything
+    if (input == NULL || output == NULL) {
+        fprintf(stderr, "Error: Input and output paths cannot be NULL\n");
+        return 1;
+    }
 
-    MagickWandGenesis();
+    if (quality < 1 || quality > 100) { 
+        fprintf(stderr, "Error: Quality must be between 1 and 100\n");
+    }
+
+    // Allocate resources
+    int result = 1;
+    // Create wand object for MagickWand use
     MagickWand *wand = NewMagickWand();
+
+    // If wand fails to be created, print output and return 1
+    if (wand == NULL) {
+        fprintf(stderr, "Error: Could not create MagickWand\n");
+        return 1;
+    }
 
     // Read input image
     if (MagickReadImage(wand, input) == MagickFalse) {
         fprintf(stderr, "Error: Failed to read image '%s'\n", input);
-        wand = DestroyMagickWand(wand);
-        MagickWandTerminus();
-        return 1;
+        goto cleanup;
     }
 
-    // PNG supports alpha, so keep it if present
-    if (MagickGetImageAlphaChannel(wand) == MagickTrue) {
-        MagickSetImageAlphaChannel(wand, ActivateAlphaChannel);
-    }
-
-    // Set output format to PNG
+    // Set format
     if (MagickSetImageFormat(wand, "PNG") == MagickFalse) {
-        fprintf(stderr, "Error: Failed to set output format to PNG\n");
-        wand = DestroyMagickWand(wand);
-        MagickWandTerminus();
-        return 1;
+        fprintf(stderr, "Error: Failed to set PNG format\n");
+        goto cleanup;
     }
 
-    // Set compression quality (0–100)
-    MagickSetImageCompressionQuality(wand, quality);
+    // Set quality
+    if (MagickSetImageCompressionQuality(wand, quality) == MagickFalse) {
+        fprintf(stderr, "Error: Failed to set image quality\n");
+        goto cleanup;
+    }
 
     // Write output image
     if (MagickWriteImage(wand, output) == MagickFalse) {
         fprintf(stderr, "Error: Failed to write image '%s'\n", output);
-        wand = DestroyMagickWand(wand);
-        MagickWandTerminus();
-        return 1;
+        goto cleanup;
     }
 
     printf("Successfully converted '%s' → '%s' with quality %d\n", input, output, quality);
 
-    wand = DestroyMagickWand(wand);
-    MagickWandTerminus();
-    return 0;
+    // Mark conversion successuful
+    result = 0;
+
+    //  Release resources
+    cleanup:
+        wand = DestroyMagickWand(wand);
+        return result;
+
+    
 }

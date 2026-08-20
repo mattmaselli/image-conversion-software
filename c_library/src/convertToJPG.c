@@ -1,6 +1,5 @@
 /*
-convertToJPGG.c
-
+convertToJPG.c
 */
 
 #include <stdio.h>
@@ -8,6 +7,7 @@ convertToJPGG.c
 #include <MagickWand/MagickWand.h>
 
 // (Note: * denotes ptr variable)
+// (Note: %s in print statement denotes string, %s denotes decimal)
 int convertToJPG(const char *input, const char *output, int quality) {
   
     // Validate arguments before allocating anything
@@ -26,14 +26,13 @@ int convertToJPG(const char *input, const char *output, int quality) {
     // Create wand object for MagickWand use
     MagickWand *wand = NewMagickWand();
 
-    // Error Handling section
     // If wand fails to be created, print output and return 1
     if (wand == NULL) {
         fprintf(stderr, "Error: Could not create MagickWand\n");
         return 1;
     }
 
-    // Read Image
+    // Read input image
     if (MagickReadImage(wand, input) == MagickFalse) {
         fprintf(stderr, "Error: Failed to read '%s'\n", input);
         goto cleanup;
@@ -47,7 +46,7 @@ int convertToJPG(const char *input, const char *output, int quality) {
         goto cleanup;
     }
 
-     // Set JPEG quality
+    // Set quality
     if (MagickSetImageCompressionQuality(wand, quality) == MagickFalse) {
         fprintf(stderr, "Error: Failed to set image quality\n");
         goto cleanup;
@@ -62,22 +61,19 @@ int convertToJPG(const char *input, const char *output, int quality) {
 
     }*/
 
-    // Write output JPG
+    // Write output image
     if (MagickWriteImage(wand, output) == MagickFalse) {
         fprintf(stderr, "Error: Failed to write image '%s'\n", output);
         goto cleanup;
     }
-
-
 
     printf("Successfully converted '%s' → '%s' with quality %d\n", input, output, quality);
 
     // Mark conversion successful
     result = 0;
 
+    // Release resources
     cleanup:
-        // Release resources
         wand = DestroyMagickWand(wand);
         return result;
-
 }
