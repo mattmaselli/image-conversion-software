@@ -1,3 +1,4 @@
+#include <MagickWand/MagickWand.h>
 #include "ourconversionlib.h"
 
 int main() {
@@ -7,7 +8,7 @@ int main() {
     MagickWandGenesis(); 
 
     convertToJPG("input.png", "output.jpg", 100);
-    convertToPNG("input.png", 100);
+    convertToPNG("input.png", "output.png", 100);
     convertToTIFF("input.png", 100);
     convertToWEBP("input.png", 100);
 
