@@ -6,6 +6,8 @@ convertToPNG.c
 #include <stdlib.h>
 #include <MagickWand/MagickWand.h>
 
+// (Note: * denotes ptr variable)
+// (Note: %s in print statement denotes string, %s denotes decimal)
 int convertToPNG(const char *input, const char *output, int quality) {
     
     // Validate arguments before allocating anything
