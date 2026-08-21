@@ -29,16 +29,6 @@ int convertToTIFF(const char *input, const char *output, int quality) {
         goto cleanup;
     }
 
-    // If the image has alpha, keep it; if not, remove it
-    MagickBooleanType hasAlpha = MagickGetImageAlphaChannel(wand);
-    if (hasAlpha == MagickTrue) {
-        MagickSetImageAlphaChannel(wand, ActivateAlphaChannel);
-        MagickSetOption(wand, "tiff:alpha", "unassociated");
-    } 
-    else {
-        MagickSetImageAlphaChannel(wand, RemoveAlphaChannel);
-    }
-
     // Set format to TIFF
     if (MagickSetImageFormat(wand, "TIFF") == MagickFalse) {
         fprintf(stderr, "Error: Failed to set output format to TIFF\n");
