@@ -53,13 +53,14 @@ int convertToJPG(const char *input, const char *output, int quality) {
     }
 
     // remove alpha channel to remove transparency from image 
-    /*if (MagickGetImageAlphaChannel(wand) == MagickTrue) {
+    // Useful because otherwise a transparent image will gain a solid black background
+    // With this feature the background is white, making (most) images more parsable
+    if (MagickGetImageAlphaChannel(wand) == MagickTrue) {
         if (MagickSetImageAlphaChannel(wand, RemoveAlphaChannel) == MagickFalse) {
         fprintf(stderr, "Error: Failed to remove alpha channel\n");
         goto cleanup;
         }   
-
-    }*/
+    }
 
     // Write output image
     if (MagickWriteImage(wand, output) == MagickFalse) {
