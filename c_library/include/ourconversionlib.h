@@ -9,8 +9,8 @@ extern "C" {
 
 int convertToJPG(const char *input, const char *output, int quality);
 int convertToPNG(const char *input, const char *output, int quality);
-int convertToTIFF(const char *input, int quality);
-int convertToWEBP(const char *input, int quality);
+int convertToTIFF(const char *input, const char *output, int quality);
+int convertToWEBP(const char *input, const char *output, int quality);
 
 typedef struct {
     const char **frames;

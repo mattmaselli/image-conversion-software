@@ -52,7 +52,7 @@ int convertToJPG(const char *input, const char *output, int quality) {
         goto cleanup;
     }
 
-    // remove alpha channel to remove transparency from image 
+    // remove alpha channel (transparency) from image
     // Useful because otherwise a transparent image will gain a solid black background
     // With this feature the background is white, making (most) images more parsable
     if (MagickGetImageAlphaChannel(wand) == MagickTrue) {

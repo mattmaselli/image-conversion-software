@@ -9,8 +9,8 @@ int main() {
 
     convertToJPG("input.png", "output.jpg", 100);
     convertToPNG("input.png", "output.png", 100);
-    convertToTIFF("input.png", 100);
-    convertToWEBP("input.png", 100);
+    convertToTIFF("input.png", "output.tiff", 100);
+    convertToWEBP("input.png", "output.webp", 100);
 
     GIFInput input = makeGIFInput ((const char*[]){"input.png"}, 1, "output.gif", 100, -1, 500, 500);
 
