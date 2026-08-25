@@ -26,7 +26,7 @@ Building a website for image file conversion in formats such as JPG, PNG, and GI
 - [License](#license)
 
 ## About
-Add a detailed introduction about the project here, everything you want the reader to know.
+This project leverages functions from the ImageMagick library (https://imagemagick.org/), a "free, open-source software suite, used for editing and manipulating digital images." I have created my own C library that utilizes MagickWand (C API for ImageMagick) to write 5 custom functions: 4 allowing for image conversion to JPG/JPEG, PNG, TIFF, and WEBP, and 1 GIF-creation function.
 
 ## Usage
 Write about how to use this project.
