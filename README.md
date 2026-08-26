@@ -26,7 +26,9 @@ Building a website for image file conversion in formats such as JPG, PNG, and GI
 - [License](#license)
 
 ## About
-This project leverages functions from the ImageMagick library (https://imagemagick.org/), a "free, open-source software suite, used for editing and manipulating digital images." I have created my own C library that utilizes MagickWand (C API for ImageMagick) to write 5 custom functions: 4 allowing for image conversion to JPG/JPEG, PNG, TIFF, and WEBP, and 1 GIF-creation function.
+This repository contains my independent redesign of an image-conversion application originally devloped as a five-person programming course project at Rowan University. This current version is an independent redesign that substantially rebuilds the original C library, Rust FFI integration, server architecture, build system, and documentation.
+
+This project leverages functions from the ImageMagick library (https://imagemagick.org/), a "free, open-source software suite, used for editing and manipulating digital images." The C library utilizes MagickWand (C API for ImageMagick) to write 5 custom functions: 4 allowing for image conversion to JPG/JPEG, PNG, TIFF, and WEBP, and 1 GIF-creation function.
 
 ## Usage
 Write about how to use this project.
@@ -130,4 +132,16 @@ Pictures of your project.
 Credit the authors here.
 
 ##  License
-Add a license here, or a link to it.
+Copyright 2025 Conner Bolton, Bryson Grant, Matthew Maselli, Rohan Patel, Yash Patel
+
+   Licensed under the ImageMagick License (the "License"); you may not use
+   this file except in compliance with the License.  You may obtain a copy
+   of the License at
+
+     https://imagemagick.org/script/license.php
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+   WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  See the
+   License for the specific language governing permissions and limitations
+   under the License.  
