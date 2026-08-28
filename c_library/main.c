@@ -1,5 +1,6 @@
 #include <MagickWand/MagickWand.h>
 #include "ourconversionlib.h"
+#include <stdio.h>
 
 int main() {
 
@@ -12,9 +13,37 @@ int main() {
     convertToTIFF("input.png", "output.tiff", 100);
     convertToWEBP("input.png", "output.webp", 100);
 
-    GIFInput input = makeGIFInput ((const char*[]){"input.png"}, 1, "output.gif", 100, -1, 500, 500);
+    // Create GIF
+    const char *frames[] =
+    {
+        "input.png",
+        "frame1.jpg",
+        "output.jpg"
+    };
 
-    makeGIF(input);
+    GIFInput gif_input = {
+        .frames = frames,
+        .count = 3,
+        .out_gif = "output.gif",
+        .delay_cs = 500,
+        .loop = 0,
+        .target_w=0, 
+        .target_h = 0
+    };
+
+    int gif_result = makeGIF(gif_input);
+
+    if (gif_result != 0) 
+    {
+        fprintf(stderr, "GIF conversion failed.\n");
+    }
+
+    MagickWandTerminus ();
+
+    return gif_result;
+    //GIFInput input = makeGIFInput ((const char*[]){"input.png"}, 1, "output.gif", 100, -1, 500, 500);
+
+    //makeGIF(input);
 
     // Clean up and releases resources 
     MagickWandTerminus ();
