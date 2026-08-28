@@ -37,7 +37,7 @@ typedef struct GIFInput {
     size_t target_h;
 } GIFInput;
                      
-int makeGIF(const GIFInput *input);
+int makeGIF(GIFInput input);
 
 #ifdef __cplusplus
 }
