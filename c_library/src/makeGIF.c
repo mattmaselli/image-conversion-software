@@ -25,8 +25,11 @@ static void print_wand_error(const char *operation, MagickWand *wand) {
     }
 }
     
-static int calculate_fit_size(
-    // size_t = unsigned integer able to hold largest possible size
+// Calc fill size for each gif
+// Each frame may have differing dimension sizes so
+// this functions ensures standardized fill size  
+static int calculate_fill_size(
+    // size_t is an unsigned integer type used for sizes and counts
     size_t input_width,
     size_t input_height,
     size_t target_width, 
@@ -35,7 +38,7 @@ static int calculate_fit_size(
     size_t *output_width,
     size_t *output_height
 )
-{   // ensure valid args
+{   // ensure dimensions are positive and output pointers are valid
     if (
         input_width == 0 || 
         input_height == 0 ||
@@ -47,39 +50,38 @@ static int calculate_fit_size(
         return 1;
     }
 
-    // scale to FIT inside target while preserving aspect
+    // scale to FILL inside target while preserving aspect
     double width_scale = (double) target_width / (double) input_width;
-
-    double height_scale = (double) target_height / (double) input_width;
+    double height_scale = (double) target_height / (double) input_height;
 
     // condition ? value_if_true : value_if_false
-    // Ensures that function selects smaller scale so the resized image fits entirely 
-    // inside target dimensions without stretching or cropping.
-    // Ex: if width_scale = 0.5 and height_scale = 0.75
-    // Then scale should = 0.5 to guarantee both dimensions fit
-    double scale = width_scale < height_scale ? width_scale : height_scale;
+    // Ensures that function selects larger scale so the resized image fits entirely 
+    // inside target dimensions - this way, no empty space will be utilized.
+    // All frames of the GIF will fit in the dimensions, 
+    // even if some have to be heavily cropped and centered.
+    // Ex: if image = 800 x 400 and target = 400 x 400:
+    // width_scale = 400 / 800 = .5
+    // height_scale = 400 / 400 = 1.0
+    // Then fill scale = 1.0 
+    // and resized image = 800 x 400
+    // Then the image covers the 400 x 400 canvas and the extra 400 pixels are 
+    // center-cropped
+    double scale = width_scale > height_scale ? width_scale : height_scale;
 
     // round to positive decimal to nearest whole number
     // before converting it to size_t.
     *output_width = (size_t) ((double) input_width * scale + 0.5);
-
     *output_height = (size_t)((double) input_height * scale + 0.5);
 
-    // Prevent small images from being round down to nothing
-    if (*output_width == 0) {
-        *output_width = 1;
-    }
-
-    if (*output_height == 0) {
-        *output_height = 1;
-    }
     return 0;
 }
 
 int makeGIF (GIFInput input)
 {
     int result = 1;
+    // animation will hold completed sequence
     MagickWand *animation = NULL;
+    // background supplies transparent pixels when needed
     PixelWand *background = NULL; 
     size_t target_width = input.target_w;
     size_t target_height = input.target_h;
@@ -147,14 +149,14 @@ int makeGIF (GIFInput input)
     }
 
     // If either target dimension was omitted, inspect all frames 
-    // and find largest missing dimension
-    // (useful default for when user does not care to specify)
+    // and find smallest combo of dimensions
+    // Useful default for when user does not care to specify
+    // If specified, disregarded
     // FOR LOOP START
     if (target_width == 0 || target_height == 0) 
     { 
-        size_t max_width = 0;
-        size_t max_height = 0;
-
+        size_t min_width = 0;
+        size_t min_height = 0;
         MagickWand *probe = NewMagickWand();
 
         if (probe == NULL) 
@@ -183,14 +185,24 @@ int makeGIF (GIFInput input)
                 goto cleanup;
             }
 
-            if (width > max_width) 
+            // intialize with first frame dimensions
+            if (i ==0) 
             {
-                max_width = width;
+                min_width = width;
+                min_height = height;
             }
-
-            if (height > max_height) 
+            else 
             {
-                max_height = height;
+                // Compare each later frame with the current minimums.
+                if (width < min_width) 
+                {
+                    min_width = width;
+                }
+                
+                if (height < min_height)
+                {
+                    min_height = height;
+                }
             }
             ClearMagickWand(probe);
         }
@@ -198,11 +210,11 @@ int makeGIF (GIFInput input)
         probe = DestroyMagickWand(probe);
 
         if (target_width == 0) {
-            target_width = max_width;
+            target_width = min_width;
         }
 
         if (target_height == 0) {
-            target_height = max_height;
+            target_height = min_height;
         }
 
         if (target_width == 0 || target_height == 0) {
@@ -211,8 +223,10 @@ int makeGIF (GIFInput input)
         }
     } // FOR LOOP END
 
-    // Read, resize, and append each frame.
-    for (size_t i = 0; i < input.count; i++) {
+    // Read, resize, and append each frame at a time.
+    for (size_t i = 0; i < input.count; i++) 
+    {
+        // Create frame wand
         MagickWand *frame = NewMagickWand();
 
         if (frame == NULL) 
@@ -223,6 +237,7 @@ int makeGIF (GIFInput input)
             goto cleanup;
         }
 
+        // Read image
         if (MagickReadImage(frame, input.frames[i]) == MagickFalse) {
             print_wand_error("Reading GIF frame", frame);
             frame = DestroyMagickWand(frame);
@@ -234,9 +249,14 @@ int makeGIF (GIFInput input)
         size_t resized_width;
         size_t resized_height;
 
-        // Check if each frame passes calc_fit_size test
+        // Pass each frame through calc_fill_size
+        // the input dimensions change with each frame, but target 
+        // dimensions stay the same
+        // EX: 
+        // Frame 1: c_f_s(800, 600, 500, 400, ...)
+        // Frame 2: c_f_s(500, 700, 500, 400, ...)
         // If it returns 1, then invalid input(s) exist(s)
-        if (calculate_fit_size(
+        if (calculate_fill_size(
             input_width,
             input_height,
             target_width,
@@ -299,6 +319,8 @@ int makeGIF (GIFInput input)
             frame = DestroyMagickWand(frame);
             goto cleanup;
         }
+
+        // How image is to be disposed of after (none set)
         if (MagickSetImageDispose(
             frame,
             NoneDispose) == MagickFalse)
