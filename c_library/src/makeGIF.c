@@ -25,6 +25,9 @@ static void print_wand_error(const char *operation, MagickWand *wand) {
     }
 }
     
+// Calc fill size for each gif
+// Each frame may have differing dimension sizes so
+// this functions ensures standardized fill size  
 static int calculate_fill_size(
     // size_t is an unsigned integer type used for sizes and counts
     size_t input_width,
@@ -49,7 +52,6 @@ static int calculate_fill_size(
 
     // scale to FILL inside target while preserving aspect
     double width_scale = (double) target_width / (double) input_width;
-
     double height_scale = (double) target_height / (double) input_height;
 
     // condition ? value_if_true : value_if_false
@@ -77,7 +79,9 @@ static int calculate_fill_size(
 int makeGIF (GIFInput input)
 {
     int result = 1;
+    // animation will hold completed sequence
     MagickWand *animation = NULL;
+    // background supplies transparent pixels when needed
     PixelWand *background = NULL; 
     size_t target_width = input.target_w;
     size_t target_height = input.target_h;
@@ -145,17 +149,14 @@ int makeGIF (GIFInput input)
     }
 
     // If either target dimension was omitted, inspect all frames 
-    // and find largest missing dimension
-    // (useful default for when user does not care to specify)
+    // and find smallest combo of dimensions
+    // Useful default for when user does not care to specify
+    // If specified, disregarded
     // FOR LOOP START
     if (target_width == 0 || target_height == 0) 
     { 
-        //size_t max_width = 0;
-        //size_t max_height = 0;
         size_t min_width = 0;
         size_t min_height = 0;
-        
-
         MagickWand *probe = NewMagickWand();
 
         if (probe == NULL) 
@@ -184,16 +185,7 @@ int makeGIF (GIFInput input)
                 goto cleanup;
             }
 
-            /*if (width > max_width) 
-            {
-                max_width = width;
-            }
-
-            if (height > max_height) 
-            {
-                max_height = height;
-            }*/
-
+            // intialize with first frame dimensions
             if (i ==0) 
             {
                 min_width = width;
@@ -201,7 +193,13 @@ int makeGIF (GIFInput input)
             }
             else 
             {
+                // Compare each later frame with the current minimums.
                 if (width < min_width) 
+                {
+                    min_width = width;
+                }
+                
+                if (height < min_height)
                 {
                     min_height = height;
                 }
@@ -225,8 +223,10 @@ int makeGIF (GIFInput input)
         }
     } // FOR LOOP END
 
-    // Read, resize, and append each frame.
-    for (size_t i = 0; i < input.count; i++) {
+    // Read, resize, and append each frame at a time.
+    for (size_t i = 0; i < input.count; i++) 
+    {
+        // Create frame wand
         MagickWand *frame = NewMagickWand();
 
         if (frame == NULL) 
@@ -237,6 +237,7 @@ int makeGIF (GIFInput input)
             goto cleanup;
         }
 
+        // Read image
         if (MagickReadImage(frame, input.frames[i]) == MagickFalse) {
             print_wand_error("Reading GIF frame", frame);
             frame = DestroyMagickWand(frame);
@@ -248,7 +249,12 @@ int makeGIF (GIFInput input)
         size_t resized_width;
         size_t resized_height;
 
-        // Check if each frame passes calc_fill_size test
+        // Pass each frame through calc_fill_size
+        // the input dimensions change with each frame, but target 
+        // dimensions stay the same
+        // EX: 
+        // Frame 1: c_f_s(800, 600, 500, 400, ...)
+        // Frame 2: c_f_s(500, 700, 500, 400, ...)
         // If it returns 1, then invalid input(s) exist(s)
         if (calculate_fill_size(
             input_width,
@@ -313,6 +319,8 @@ int makeGIF (GIFInput input)
             frame = DestroyMagickWand(frame);
             goto cleanup;
         }
+
+        // How image is to be disposed of after (none set)
         if (MagickSetImageDispose(
             frame,
             NoneDispose) == MagickFalse)
