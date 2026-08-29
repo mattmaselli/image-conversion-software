@@ -26,7 +26,7 @@ static void print_wand_error(const char *operation, MagickWand *wand) {
 }
     
 static int calculate_fill_size(
-    // size_t = unsigned integer able to hold largest possible size
+    // size_t is an unsigned integer type used for sizes and counts
     size_t input_width,
     size_t input_height,
     size_t target_width, 
@@ -35,7 +35,7 @@ static int calculate_fill_size(
     size_t *output_width,
     size_t *output_height
 )
-{   // ensure valid args
+{   // ensure dimensions are positive and output pointers are valid
     if (
         input_width == 0 || 
         input_height == 0 ||
@@ -47,13 +47,13 @@ static int calculate_fill_size(
         return 1;
     }
 
-    // scale to FIT inside target while preserving aspect
+    // scale to FILL inside target while preserving aspect
     double width_scale = (double) target_width / (double) input_width;
 
-    double height_scale = (double) target_height / (double) input_width;
+    double height_scale = (double) target_height / (double) input_height;
 
     // condition ? value_if_true : value_if_false
-    // Ensures that function selects smaller scale so the resized image fits entirely 
+    // Ensures that function selects larger scale so the resized image fits entirely 
     // inside target dimensions - this way, no empty space will be utilized.
     // All frames of the GIF will fit in the dimensions, 
     // even if some have to be heavily cropped and centered.
@@ -64,22 +64,13 @@ static int calculate_fill_size(
     // and resized image = 800 x 400
     // Then the image covers the 400 x 400 canvas and the extra 400 pixels are 
     // center-cropped
-    //double scale = width_scale < height_scale ? width_scale : height_scale;
     double scale = width_scale > height_scale ? width_scale : height_scale;
+
     // round to positive decimal to nearest whole number
     // before converting it to size_t.
     *output_width = (size_t) ((double) input_width * scale + 0.5);
-
     *output_height = (size_t)((double) input_height * scale + 0.5);
 
-    // Prevent small images from being round down to nothing
-    if (*output_width == 0) {
-        *output_width = 1;
-    }
-
-    if (*output_height == 0) {
-        *output_height = 1;
-    }
     return 0;
 }
 
