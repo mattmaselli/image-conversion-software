@@ -25,7 +25,7 @@ static void print_wand_error(const char *operation, MagickWand *wand) {
     }
 }
     
-static int calculate_fit_size(
+static int calculate_fill_size(
     // size_t = unsigned integer able to hold largest possible size
     size_t input_width,
     size_t input_height,
@@ -54,11 +54,18 @@ static int calculate_fit_size(
 
     // condition ? value_if_true : value_if_false
     // Ensures that function selects smaller scale so the resized image fits entirely 
-    // inside target dimensions without stretching or cropping.
-    // Ex: if width_scale = 0.5 and height_scale = 0.75
-    // Then scale should = 0.5 to guarantee both dimensions fit
-    double scale = width_scale < height_scale ? width_scale : height_scale;
-
+    // inside target dimensions - this way, no empty space will be utilized.
+    // All frames of the GIF will fit in the dimensions, 
+    // even if some have to be heavily cropped and centered.
+    // Ex: if image = 800 x 400 and target = 400 x 400:
+    // width_scale = 400 / 800 = .5
+    // height_scale = 400 / 400 = 1.0
+    // Then fill scale = 1.0 
+    // and resized image = 800 x 400
+    // Then the image covers the 400 x 400 canvas and the extra 400 pixels are 
+    // center-cropped
+    //double scale = width_scale < height_scale ? width_scale : height_scale;
+    double scale = width_scale > height_scale ? width_scale : height_scale;
     // round to positive decimal to nearest whole number
     // before converting it to size_t.
     *output_width = (size_t) ((double) input_width * scale + 0.5);
@@ -152,8 +159,11 @@ int makeGIF (GIFInput input)
     // FOR LOOP START
     if (target_width == 0 || target_height == 0) 
     { 
-        size_t max_width = 0;
-        size_t max_height = 0;
+        //size_t max_width = 0;
+        //size_t max_height = 0;
+        size_t min_width = 0;
+        size_t min_height = 0;
+        
 
         MagickWand *probe = NewMagickWand();
 
@@ -183,7 +193,7 @@ int makeGIF (GIFInput input)
                 goto cleanup;
             }
 
-            if (width > max_width) 
+            /*if (width > max_width) 
             {
                 max_width = width;
             }
@@ -191,6 +201,19 @@ int makeGIF (GIFInput input)
             if (height > max_height) 
             {
                 max_height = height;
+            }*/
+
+            if (i ==0) 
+            {
+                min_width = width;
+                min_height = height;
+            }
+            else 
+            {
+                if (width < min_width) 
+                {
+                    min_height = height;
+                }
             }
             ClearMagickWand(probe);
         }
@@ -198,11 +221,11 @@ int makeGIF (GIFInput input)
         probe = DestroyMagickWand(probe);
 
         if (target_width == 0) {
-            target_width = max_width;
+            target_width = min_width;
         }
 
         if (target_height == 0) {
-            target_height = max_height;
+            target_height = min_height;
         }
 
         if (target_width == 0 || target_height == 0) {
@@ -234,9 +257,9 @@ int makeGIF (GIFInput input)
         size_t resized_width;
         size_t resized_height;
 
-        // Check if each frame passes calc_fit_size test
+        // Check if each frame passes calc_fill_size test
         // If it returns 1, then invalid input(s) exist(s)
-        if (calculate_fit_size(
+        if (calculate_fill_size(
             input_width,
             input_height,
             target_width,
