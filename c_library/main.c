@@ -48,12 +48,39 @@ int main() {
     int user_loop;
     int user_target_w;
     int user_target_h;
+    int user_exit = 0;
 
-    printf("Please enter a count: " );
+    // Priming read
+    printf("GIF CREATION\nType 1 to continue, 2 to exit: ");
+    scanf("%d", &user_exit);
+    while (user_exit != 2)
+    {
+
+
+    if (user_exit != 1) 
+    {
+        printf("Try again: ");
+        scanf("%d", &user_exit);
+    }
+    
+    printf("How many frames do you want to use? (Limit 10) Enter a count (int): ");
+    
     scanf("%d", &user_count);
 
-    printf("You entered: %d\n", user_count);
+    if (user_count <= 0 || user_count >= 10) 
+    {
+        printf("Invalid input, try again: ");
+        scanf("%d", &user_count);
+    }
 
+    for (size_t i = 0; i < user_count; i++)
+    {
+        printf("Hello");
+    }
+    } 
+
+    printf("Session terminated.\n");
+    
      // Clean up and releases resources 
     MagickWandTerminus ();
 
