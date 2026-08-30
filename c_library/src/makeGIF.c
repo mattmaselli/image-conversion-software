@@ -301,8 +301,8 @@ int makeGIF (GIFInput input)
             frame = DestroyMagickWand(frame);
             goto cleanup;
         }
-
-        // Gravity handles centering, so use offsets of zero.
+        // Make every frame the exact target width and target height,
+        // center cropping the excess pixels
         if (MagickExtentImage(
             frame,
             target_width,
@@ -314,7 +314,8 @@ int makeGIF (GIFInput input)
             frame = DestroyMagickWand(frame);
             goto cleanup;
         }
-
+        // Sets how long the frame appears for. Measured in centiseconds,
+        // each frame will have the same length.
         if (MagickSetImageDelay(
             frame,
             (size_t) input.delay_cs) == MagickFalse)
@@ -323,8 +324,10 @@ int makeGIF (GIFInput input)
             frame = DestroyMagickWand(frame);
             goto cleanup;
         }
-
-        // How image is to be disposed of after (none set)
+        // How frame is to be disposed of afterbeing displayed.
+        // NoneDispose means no special clearing operation, 
+        // which is fine because this produces full-canvas frames of 
+        // identical dimensions.
         if (MagickSetImageDispose(
             frame,
             NoneDispose) == MagickFalse)
@@ -333,7 +336,7 @@ int makeGIF (GIFInput input)
             frame = DestroyMagickWand(frame);
             goto cleanup;
         }
-
+        // Set frame output format.
         if (MagickSetImageFormat(
             frame, 
             "GIF") == MagickFalse)
@@ -342,7 +345,7 @@ int makeGIF (GIFInput input)
             frame = DestroyMagickWand(frame);
             goto cleanup;
         }
-
+        // Adds the finished frame to animation sequence.
         if (MagickAddImage
             (
             animation,
@@ -354,18 +357,20 @@ int makeGIF (GIFInput input)
             frame = DestroyMagickWand(frame);
             goto cleanup;
         }
+        // Now that frame is added to the GIF, we are done with it.
         frame = DestroyMagickWand(frame);
+    // FOR LOOP END
     }
 
+    // Verify that at least one frame was added
     if (MagickGetNumberImages(animation) == 0 )
     {
         fprintf(stderr, "Error: No frames were added to GIF\n");
         goto cleanup;
     }
-
-    MagickSetFirstIterator(animation);
     
-    // 0 means loop forever.
+    // Move wand iterator to first frame.
+    MagickSetFirstIterator(animation);
     char iterations[32];
 
     // snprintf - used to format and store a string into a memory buffer
@@ -375,6 +380,9 @@ int makeGIF (GIFInput input)
     // used to hold data while it moves from one place to another
     snprintf(iterations, sizeof(iterations), "%d", input.loop);
 
+    // Set animation loop count.
+    // 0 = loop forever
+    // pos. value = # of iterations
     if (MagickSetOption(
         animation,
         "gif:iterations",
@@ -384,10 +392,11 @@ int makeGIF (GIFInput input)
         goto cleanup;
     }
 
-    // Leave optimization out until basic GIF path is fully tested
+    // Leaving optimization out until basic GIF path is fully tested.
     // MagickOptimizeImageLayers returns a new wand rather than 
     // modifying animation in place.
 
+    // Write complete animation
     if (MagickWriteImages(
         animation,
         input.out_gif,
@@ -397,9 +406,10 @@ int makeGIF (GIFInput input)
         goto cleanup;
     }
     
-    // End
+    // Success, go to cleanup
     result = 0;
-    
+
+// Clean up and destroy wands!
 cleanup: 
     if (background != NULL) 
     {
@@ -410,6 +420,5 @@ cleanup:
     {
         animation = DestroyMagickWand(animation);
     }
-
     return result;
 }
