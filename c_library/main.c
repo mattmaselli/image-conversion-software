@@ -18,12 +18,13 @@ int main() {
     {
         "input.png",
         "frame1.jpg",
-        "output.jpg"
+        "frame2.jpg",
+        "frame3.jpg"
     };
 
     GIFInput gif_input = {
         .frames = frames,
-        .count = 3,
+        .count = 4,
         .out_gif = "output.gif",
         .delay_cs = 500,
         .loop = 0,
@@ -41,9 +42,6 @@ int main() {
     MagickWandTerminus ();
 
     return gif_result;
-    //GIFInput input = makeGIFInput ((const char*[]){"input.png"}, 1, "output.gif", 100, -1, 500, 500);
-
-    //makeGIF(input);
 
     // Clean up and releases resources 
     MagickWandTerminus ();
