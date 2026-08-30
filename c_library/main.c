@@ -39,12 +39,23 @@ int main() {
         fprintf(stderr, "GIF conversion failed.\n");
     }
 
+    // MAKE OWN GIF, GET USER INPUT:
+
+    const char *user_frames;
+    int user_count;
+    char user_out_gif[11];
+    int user_delay;
+    int user_loop;
+    int user_target_w;
+    int user_target_h;
+
+    printf("Please enter a count: " );
+    scanf("%d", &user_count);
+
+    printf("You entered: %d\n", user_count);
+
+     // Clean up and releases resources 
     MagickWandTerminus ();
 
     return gif_result;
-
-    // Clean up and releases resources 
-    MagickWandTerminus ();
-
-    return 0;
 }
