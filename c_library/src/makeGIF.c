@@ -269,6 +269,7 @@ int makeGIF (GIFInput input)
             goto cleanup;
         }
     
+        // Resize image 
         if (resized_width != input_width || resized_height != input_height)
         {
             if (MagickResizeImage(frame, 
@@ -282,6 +283,8 @@ int makeGIF (GIFInput input)
                     goto cleanup;
                 }
         }
+        // Set background if ImageMagick needs to add canvas pixels
+        // With fill-and-crop, padding normally shouldn't be necessary
         if (MagickSetImageBackgroundColor(frame, background) == 
             MagickFalse)
         {
@@ -289,7 +292,8 @@ int makeGIF (GIFInput input)
             frame = DestroyMagickWand(frame);
             goto cleanup;
         }
-        
+        // This tells ImageMagick to position image relative to its 
+        // center
         if (MagickSetImageGravity(frame, CenterGravity) == 
             MagickFalse) 
         {
