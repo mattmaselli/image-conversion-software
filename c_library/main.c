@@ -46,8 +46,27 @@ int main() {
     // MAKE OWN GIF, GET USER INPUT:
 
     // readInt helper function for processing ints and discarding chars
-    int readInt(const char *prompt, int min, int max, int *output)
+    int readInt(int* value)
     {
+        char line[128] *end;
+        while  (fgets(line, sizeof line, stdin))
+        {
+            // Reject and discard lines too long for buffer
+            if (!strchr(line, '\n') && !feof(stdin)) 
+            {
+                int c;
+                while ((c = getchar()) != '\n' && c != EOF);
+            }
+            else 
+            {
+                errno = 0;
+                long n = strtol()
+
+            }
+
+        }
+
+        return 0;
 
     }
     const char *user_frames;
