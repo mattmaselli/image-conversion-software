@@ -1,6 +1,10 @@
 #include <MagickWand/MagickWand.h>
 #include "ourconversionlib.h"
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <errno.h>
+#include <limits.h>
 
 int main() {
 
@@ -41,6 +45,11 @@ int main() {
 
     // MAKE OWN GIF, GET USER INPUT:
 
+    // readInt helper function for processing ints and discarding chars
+    int readInt(const char *prompt, int min, int max, int *output)
+    {
+
+    }
     const char *user_frames;
     int user_count;
     char user_out_gif[11];
@@ -49,26 +58,31 @@ int main() {
     int user_target_w;
     int user_target_h;
     int user_exit = 0;
+    int c;
 
     // Priming read
     printf("GIF CREATION\nType 1 to continue, 2 to exit: ");
     scanf("%d", &user_exit);
+
+    while (user_exit !=1 && user_exit !=2) 
+    {
+        int c;
+        while ((c=getchar()) != '\n' && c != EOF);
+        printf("Invalid input, try again. ");
+        scanf("%d", &user_exit);
+    }
     while (user_exit != 2)
     {
 
-
-    if (user_exit != 1) 
-    {
-        printf("Try again: ");
-        scanf("%d", &user_exit);
-    }
-    
+    int c;
+    while ((c=getchar()) != '\n' && c != EOF);
     printf("How many frames do you want to use? (Limit 10) Enter a count (int): ");
-    
     scanf("%d", &user_count);
 
-    if (user_count <= 0 || user_count >= 10) 
+    while (user_count <= 0 || user_count > 10) 
     {
+        int c;
+        while ((c=getchar()) != '\n' && c != EOF);
         printf("Invalid input, try again: ");
         scanf("%d", &user_count);
     }
