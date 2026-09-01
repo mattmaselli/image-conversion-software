@@ -6,7 +6,40 @@
 #include <errno.h>
 #include <limits.h>
 
-int main() {
+ // readInt helper function for processing ints and discarding chars
+int readInt(int* value)
+{
+    char line[128], *end;
+
+    while  (fgets(line, sizeof line, stdin))
+    {
+        // Reject and discard lines too long for buffer
+        if (!strchr(line, '\n') && !feof(stdin)) 
+        {
+            int c;
+            while ((c = getchar()) != '\n' && c != EOF) {}
+        }
+        else 
+        {
+            errno = 0;
+            long n = strtol(line, &end, 10);
+
+            if (end != line && errno != ERANGE && 
+            n >= INT_MIN && n <= INT_MAX &&
+            end[strspn(end, " \t\r\n\v\f")] == '\0')  
+            {
+                *value = (int)n;
+                return 1;
+            }
+        }
+        printf("Invalid integer. Try again: ");
+        fflush(stdout);
+    }
+    return 0;
+}
+
+int main() 
+{
 
     // Initialize MagickWand C API environment
     // Setting up internal resources, thread safety, and data structures
@@ -44,31 +77,6 @@ int main() {
     }
 
     // MAKE OWN GIF, GET USER INPUT:
-
-    // readInt helper function for processing ints and discarding chars
-    int readInt(int* value)
-    {
-        char line[128] *end;
-        while  (fgets(line, sizeof line, stdin))
-        {
-            // Reject and discard lines too long for buffer
-            if (!strchr(line, '\n') && !feof(stdin)) 
-            {
-                int c;
-                while ((c = getchar()) != '\n' && c != EOF);
-            }
-            else 
-            {
-                errno = 0;
-                long n = strtol()
-
-            }
-
-        }
-
-        return 0;
-
-    }
     const char *user_frames;
     int user_count;
     char user_out_gif[11];
